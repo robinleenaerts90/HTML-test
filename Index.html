@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atrias Data Platform - Technisch Antwoordmodel Perceel 2</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Warm Neutrals & Atrias Blue -->
+    <!-- Background: #fdfbf7 (Warm White), Text: #1f2937 (Gray-900), Primary: #0ea5e9 (Sky-500 from image), Secondary: #10b981 (Emerald-500 for success) -->
+    <style>
+        body {
+            background-color: #fdfbf7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #1f2937;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Constrain width for readability */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        /* Pipeline Animation Classes */
+        .pipeline-step {
+            transition: all 0.5s ease;
+            border: 2px solid transparent;
+        }
+        .pipeline-step.active {
+            border-color: #0ea5e9;
+            background-color: #e0f2fe;
+            transform: scale(1.02);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .pipeline-step.success {
+            border-color: #10b981;
+            background-color: #ecfdf5;
+        }
+        .connector-line {
+            transition: background-color 0.5s ease;
+        }
+        .connector-line.active {
+            background-color: #10b981;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center gap-2">
+                        <div class="w-8 h-8 bg-sky-500 rounded-lg flex items-center justify-center text-white font-bold">A</div>
+                        <span class="font-bold text-xl text-gray-800">Atrias <span class="font-normal text-gray-500">| Technisch Antwoordmodel</span></span>
+                    </div>
+                </div>
+                <div class="hidden sm:flex sm:space-x-8 h-full">
+                    <button onclick="app.navigate('dashboard')" class="nav-link border-b-2 border-sky-500 text-gray-900 inline-flex items-center px-1 pt-1 text-sm font-medium h-full transition-colors" data-target="dashboard">Dashboard</button>
+                    <button onclick="app.navigate('design-review')" class="nav-link border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 text-sm font-medium h-full transition-colors" data-target="design-review">Design Review (Simulatie)</button>
+                    <button onclick="app.navigate('performance')" class="nav-link border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 text-sm font-medium h-full transition-colors" data-target="performance">Performance (Case 2)</button>
+                    <button onclick="app.navigate('governance')" class="nav-link border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 inline-flex items-center px-1 pt-1 text-sm font-medium h-full transition-colors" data-target="governance">Governance</button>
+                </div>
+                <!-- Mobile menu button placeholder -->
+                <div class="flex items-center sm:hidden">
+                    <button onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">Menu</button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden sm:hidden bg-white border-t border-gray-200">
+            <div class="pt-2 pb-3 space-y-1">
+                <button onclick="app.navigate('dashboard')" class="block pl-3 pr-4 py-2 border-l-4 border-sky-500 text-base font-medium text-sky-700 bg-sky-50 w-full text-left">Dashboard</button>
+                <button onclick="app.navigate('design-review')" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 w-full text-left">Design Review</button>
+                <button onclick="app.navigate('performance')" class="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:bg-gray-50 w-full text-left">Performance</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- Application Structure Plan:
+             1. Dashboard: High-level context setting. The "Why" (Volume explosion).
+             2. Design Review: The "How". Interactive digitization of the provided image to prove control over quality.
+             3. Performance: The "Proof". Addressing Case 2 regarding ETL degradation with interactive "What-if" scenarios.
+             4. Governance: The "Foundation". Medallion architecture explanation.
+        -->
+
+        <!-- SECTION 1: DASHBOARD -->
+        <section id="dashboard" class="space-y-8 animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">De Uitdaging: Van Dagwaardes naar Kwartierwaardes</h1>
+                <p class="text-lg text-gray-600 mb-6">
+                    In deze sectie visualiseren we de enorme schaalsprong (Case 1). De transitie naar een dataplatform dat 350 miljard records per jaar kan verwerken vereist geen evolutie, maar een revolutie in architectuur.
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-sky-50 p-6 rounded-xl border border-sky-100">
+                        <div class="text-sm text-sky-600 font-semibold uppercase tracking-wide">Volume per Jaar</div>
+                        <div class="text-4xl font-bold text-gray-900 mt-2">350 Mrd</div>
+                        <div class="text-sm text-gray-500 mt-1">Kwartierwaarden (geschat 2035)</div>
+                    </div>
+                    <div class="bg-amber-50 p-6 rounded-xl border border-amber-100">
+                        <div class="text-sm text-amber-600 font-semibold uppercase tracking-wide">Dagelijkse Ingest</div>
+                        <div class="text-4xl font-bold text-gray-900 mt-2">960 Mln</div>
+                        <div class="text-sm text-gray-500 mt-1">Records per dag</div>
+                    </div>
+                    <div class="bg-emerald-50 p-6 rounded-xl border border-emerald-100">
+                        <div class="text-sm text-emerald-600 font-semibold uppercase tracking-wide">Schaalbaarheid</div>
+                        <div class="text-4xl font-bold text-gray-900 mt-2">+400%</div>
+                        <div class="text-sm text-gray-500 mt-1">Capaciteitstoename nodig</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl border border-gray-200 p-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Projectie Data Groei</h3>
+                    <div class="chart-container">
+                        <canvas id="volumeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: DESIGN REVIEW (SIMULATION) -->
+        <section id="design-review" class="hidden space-y-8 animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-900">Build & Delivery: Design Review Simulatie</h2>
+                        <p class="text-gray-600 mt-2 max-w-2xl">
+                            Ervaar hoe wij kwaliteit borgen. Klik op "Start Simulatie" om een kwartierwaarde door de 5 validatiestappen van uw schema te volgen. Dit demonstreert onze "Filter First" en "Quality at Source" aanpak.
+                        </p>
+                    </div>
+                    <button onclick="app.runSimulation()" id="sim-btn" class="mt-4 md:mt-0 bg-sky-600 hover:bg-sky-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transform transition hover:-translate-y-1 flex items-center gap-2">
+                        <span>▶ Start Simulatie</span>
+                    </button>
+                </div>
+
+                <!-- Simulation Status Banner -->
+                <div id="sim-status" class="hidden mb-6 p-4 rounded-lg bg-gray-50 border border-gray-200 flex items-center gap-3">
+                    <div class="animate-spin rounded-full h-5 w-5 border-b-2 border-sky-600"></div>
+                    <span class="font-medium text-gray-700" id="sim-status-text">Klaar om te starten...</span>
+                </div>
+
+                <!-- The Pipeline Visual (Based on Source Image) -->
+                <div class="relative overflow-x-auto pb-4">
+                    <div class="min-w-[800px] flex justify-between items-center py-10 relative">
+                        <!-- Connecting Line Background -->
+                        <div class="absolute top-1/2 left-0 w-full h-1 bg-gray-200 -z-10"></div>
+                        <!-- Active Progress Line -->
+                        <div id="progress-line" class="absolute top-1/2 left-0 h-1 bg-emerald-500 -z-10 transition-all duration-[2000ms] ease-linear" style="width: 0%"></div>
+
+                        <!-- Step 1: Technical Check -->
+                        <div id="step-1" class="pipeline-step relative bg-white w-40 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center text-center cursor-pointer group" onclick="app.showDetail(1)">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center mb-2 group-hover:bg-sky-100 group-hover:text-sky-600 transition-colors">1</div>
+                            <h4 class="font-bold text-gray-800 text-sm">Technical Check</h4>
+                            <div class="text-xs text-gray-500 mt-1">Ingest Laag</div>
+                            <!-- Tooltip/Detail Indicator -->
+                            <div class="mt-2 text-xs text-sky-600 opacity-0 group-hover:opacity-100 transition-opacity">Klik voor detail</div>
+                        </div>
+
+                        <!-- Step 2: Enrich Metadata -->
+                        <div id="step-2" class="pipeline-step relative bg-white w-40 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center text-center cursor-pointer group" onclick="app.showDetail(2)">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center mb-2 group-hover:bg-sky-100 group-hover:text-sky-600 transition-colors">2</div>
+                            <h4 class="font-bold text-gray-800 text-sm">Enrich Metadata</h4>
+                            <div class="text-xs text-gray-500 mt-1">Bronze Laag</div>
+                             <div class="mt-2 text-xs text-sky-600 opacity-0 group-hover:opacity-100 transition-opacity">Klik voor detail</div>
+                        </div>
+
+                        <!-- Step 3: Functional Check -->
+                        <div id="step-3" class="pipeline-step relative bg-white w-40 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center text-center cursor-pointer group" onclick="app.showDetail(3)">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center mb-2 group-hover:bg-sky-100 group-hover:text-sky-600 transition-colors">3</div>
+                            <h4 class="font-bold text-gray-800 text-sm">Functional Check</h4>
+                            <div class="text-xs text-gray-500 mt-1">Silver Laag</div>
+                             <div class="mt-2 text-xs text-sky-600 opacity-0 group-hover:opacity-100 transition-opacity">Klik voor detail</div>
+                        </div>
+
+                        <!-- Step 4: Enrich (Gold) -->
+                        <div id="step-4" class="pipeline-step relative bg-white w-40 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center text-center cursor-pointer group" onclick="app.showDetail(4)">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center mb-2 group-hover:bg-sky-100 group-hover:text-sky-600 transition-colors">4</div>
+                            <h4 class="font-bold text-gray-800 text-sm">Enrich & Gold</h4>
+                            <div class="text-xs text-gray-500 mt-1">Gold Laag</div>
+                             <div class="mt-2 text-xs text-sky-600 opacity-0 group-hover:opacity-100 transition-opacity">Klik voor detail</div>
+                        </div>
+
+                         <!-- Step 5: Send -->
+                         <div id="step-5" class="pipeline-step relative bg-white w-40 p-4 rounded-xl shadow-sm border border-gray-200 flex flex-col items-center text-center cursor-pointer group" onclick="app.showDetail(5)">
+                            <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 font-bold flex items-center justify-center mb-2 group-hover:bg-sky-100 group-hover:text-sky-600 transition-colors">5</div>
+                            <h4 class="font-bold text-gray-800 text-sm">Send & Contract</h4>
+                            <div class="text-xs text-gray-500 mt-1">Delivery</div>
+                             <div class="mt-2 text-xs text-sky-600 opacity-0 group-hover:opacity-100 transition-opacity">Klik voor detail</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Detail Panel -->
+                <div id="detail-panel" class="bg-gray-50 rounded-xl p-6 border border-gray-200 transition-all duration-300">
+                    <h3 id="detail-title" class="text-xl font-bold text-gray-900 mb-2">Selecteer een stap</h3>
+                    <p id="detail-desc" class="text-gray-600 mb-4">Klik op een van de stappen hierboven om de specifieke validaties en acties te zien die in de source slide beschreven staan.</p>
+                    
+                    <div id="detail-checks" class="hidden">
+                        <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-2">Automatische Validaties</h4>
+                        <ul id="check-list" class="space-y-2">
+                            <!-- JS populates this -->
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Observability Footer -->
+                <div class="mt-6 bg-sky-900 text-white rounded-lg p-4 flex items-center justify-between">
+                    <div>
+                        <span class="font-bold block">Observability (Lineage + Logging)</span>
+                        <span class="text-sky-200 text-sm">CI/CD Pipeline: Code Commit → Build & Test → Deploy</span>
+                    </div>
+                    <div class="h-2 w-32 bg-sky-700 rounded-full overflow-hidden">
+                        <div id="obs-bar" class="h-full bg-sky-400 w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PERFORMANCE (CASE 2) -->
+        <section id="performance" class="hidden space-y-8 animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Case 2: ETL Performantie Remediatie</h2>
+                <p class="text-gray-600 mb-6">
+                    De degradatie van ETL-performance lossen we op door te verschuiven van "Full Load" naar een intelligente "Change Data Capture" (CDC) strategie. Gebruik de controls hieronder om de impact te simuleren.
+                </p>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Controls -->
+                    <div class="space-y-6">
+                        <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                            <h3 class="font-bold text-gray-800 mb-4">Strategie Selectie</h3>
+                            
+                            <div class="space-y-4">
+                                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white transition-colors">
+                                    <input type="radio" name="strategy" value="legacy" checked onchange="app.updatePerformance()" class="h-4 w-4 text-sky-600 focus:ring-sky-500">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-medium text-gray-900">Huidig: Full Table Scan</span>
+                                        <span class="block text-sm text-gray-500">Verwerkt volledige dataset bij elke run.</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-white transition-colors bg-sky-50 border-sky-200">
+                                    <input type="radio" name="strategy" value="cdc" onchange="app.updatePerformance()" class="h-4 w-4 text-sky-600 focus:ring-sky-500">
+                                    <div class="ml-3">
+                                        <span class="block text-sm font-medium text-gray-900">Voorstel: CDC + Filter First</span>
+                                        <span class="block text-sm text-gray-500">Verwerkt enkel gewijzigde records (Delta).</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-4 rounded-xl border border-gray-200">
+                            <h4 class="font-bold text-gray-800 mb-2">Technische Oplossingen</h4>
+                            <ul class="list-disc pl-5 space-y-2 text-sm text-gray-600">
+                                <li><strong>CDC (Change Data Capture):</strong> Creëert een 'hot stream' van wijzigingen, elimineert full scans.</li>
+                                <li><strong>Azure Virtualisatie:</strong> Schaalbare compute via Synapse/Fabric voor piekmomenten.</li>
+                                <li><strong>Filter First:</strong> Ongeldige data direct afwijzen bij Ingest (Stap 1 Design Review).</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Chart -->
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-4">Impact op ETL Verwerkingstijd</h3>
+                        <div class="chart-container">
+                            <canvas id="perfChart"></canvas>
+                        </div>
+                        <div id="perf-insight" class="mt-4 p-3 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium">
+                            Selecteer 'CDC + Filter First' om de optimalisatie te zien.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: GOVERNANCE -->
+        <section id="governance" class="hidden space-y-8 animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Medallion Architectuur & Governance</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+                    <div class="p-6 bg-amber-600 rounded-xl text-white shadow-lg">
+                        <h3 class="text-2xl font-bold mb-2">Bronze</h3>
+                        <p class="opacity-90 text-sm">Ruwe Data (Ingest)</p>
+                        <hr class="border-amber-400 my-3 opacity-50">
+                        <p class="text-sm">Originele staat, ongewijzigd. History audit trail.</p>
+                    </div>
+                    <div class="p-6 bg-gray-400 rounded-xl text-white shadow-lg">
+                        <h3 class="text-2xl font-bold mb-2">Silver</h3>
+                        <p class="opacity-90 text-sm">Geschoond & Conform</p>
+                        <hr class="border-gray-300 my-3 opacity-50">
+                        <p class="text-sm">Deduplicatie, validatie, verrijking. Single Source of Truth.</p>
+                    </div>
+                    <div class="p-6 bg-yellow-500 rounded-xl text-white shadow-lg">
+                        <h3 class="text-2xl font-bold mb-2">Gold</h3>
+                        <p class="opacity-90 text-sm">Business Ready</p>
+                        <hr class="border-yellow-300 my-3 opacity-50">
+                        <p class="text-sm">Geaggregeerd, Data Contracts, klaar voor verbruik (JSON/API).</p>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <h3 class="font-bold text-gray-800 mb-2">Data Contracts (Yaml)</h3>
+                    <div class="bg-gray-900 text-gray-200 p-4 rounded-lg font-mono text-sm overflow-x-auto">
+                        <p class="text-gray-500"># Voorbeeld uit Design Review Slide</p>
+                        <p><span class="text-purple-400">name:</span> ValidatedMeteredData</p>
+                        <p><span class="text-purple-400">quality:</span> high</p>
+                        <p><span class="text-purple-400">schema:</span> E305_v2.1</p>
+                        <p><span class="text-purple-400">owner:</span> Atrias Data Team</p>
+                        <p><span class="text-purple-400">sla:</span> 15min latency</p>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Data contracts garanderen dat de afnemer exact weet wat hij krijgt, zoals rechtsonder in de Design Review slide getoond.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm text-gray-500">&copy; 2026 Atrias Data Platform Proposal. Interactive Prototype.</p>
+        </div>
+    </footer>
+
+    <!-- Visualization & Content Choices:
+        1. Volume Chart (Chart.js): Visualizes the "Problem" (Case 1) - clear exponential growth curve.
+        2. Design Review Interactive: Uses DOM manipulation (Vanilla JS) to animate the process flow. This replaces a static image with an engaging "story".
+        3. Performance Chart (Chart.js): A Bar chart to compare scenarios. Allows user to "play" with the solution.
+        4. Colors: Strict adherence to Tailwind palette map to "calm harmony" requirement.
+        NO SVG or Mermaid used.
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <script>
+        // Application State & Logic
+        const app = {
+            state: {
+                currentTab: 'dashboard',
+                isSimulating: false,
+                perfStrategy: 'legacy'
+            },
+            
+            data: {
+                // Steps correspond to image_64e967.png
+                pipelineSteps: [
+                    {
+                        id: 1,
+                        title: "Technical Check",
+                        layer: "Ingest",
+                        desc: "Validatie van de inkomende bestandsstructuur tegen het officiële E305 XSD schema.",
+                        checks: ["Check: File Format (XML)", "Check: XSD Schema Compliance", "Action: Reject invalid structure"]
+                    },
+                    {
+                        id: 2,
+                        title: "Enrich Metadata",
+                        layer: "Bronze",
+                        desc: "Asset Lookup: Het systeem matcht de EAN code tegen de Central Asset Registry om bestaan te verifiëren.",
+                        checks: ["Lookup: EAN in Asset Registry", "Check: Metadata validity", "Action: Append Meta-tags"]
+                    },
+                    {
+                        id: 3,
+                        title: "Functional Check",
+                        layer: "Silver",
+                        desc: "Functionele validatie van de inhoud. Kloppen de volumes? Zijn de tijdstempels logisch?",
+                        checks: ["Check: Volume boundaries", "Check: Time sequence continuity", "Check: Duplicate detection"]
+                    },
+                    {
+                        id: 4,
+                        title: "Enrich (Gold)",
+                        layer: "Gold",
+                        desc: "Data Append: Toevoegen van Supplier GLN en Contract ID aan de payload.",
+                        checks: ["Lookup: Contract ID", "Append: Supplier GLN", "Transform: To JSON Model"]
+                    },
+                    {
+                        id: 5,
+                        title: "Send",
+                        layer: "Delivery",
+                        desc: "Publicatie via Data Contract. De afnemer ontvangt gevalideerde JSON.",
+                        checks: ["Verify: Data Contract Schema", "Action: Publish to API/Topic", "Log: Delivery Success"]
+                    }
+                ]
+            },
+
+            charts: {},
+
+            init: function() {
+                this.initCharts();
+                this.navigate('dashboard');
+                
+                // Add simple fade-in animation styles dynamically
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+                    .animate-fade-in { animation: fadeIn 0.5s ease-out forwards; }
+                `;
+                document.head.appendChild(style);
+            },
+
+            navigate: function(targetId) {
+                // Update State
+                this.state.currentTab = targetId;
+
+                // Update UI: Hide all sections, show target
+                document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+                document.getElementById(targetId).classList.remove('hidden');
+
+                // Update Nav Tabs
+                document.querySelectorAll('.nav-link').forEach(el => {
+                    if (el.dataset.target === targetId) {
+                        el.classList.remove('border-transparent', 'text-gray-500');
+                        el.classList.add('border-sky-500', 'text-gray-900');
+                    } else {
+                        el.classList.add('border-transparent', 'text-gray-500');
+                        el.classList.remove('border-sky-500', 'text-gray-900');
+                    }
+                });
+
+                // Scroll to top
+                window.scrollTo(0,0);
+            },
+
+            initCharts: function() {
+                // 1. Volume Chart
+                const ctxVol = document.getElementById('volumeChart').getContext('2d');
+                this.charts.volume = new Chart(ctxVol, {
+                    type: 'line',
+                    data: {
+                        labels: ['2023', '2024', '2025', '2026', '2030', '2035'],
+                        datasets: [{
+                            label: 'Data Volume (Miljarden records/jaar)',
+                            data: [50, 65, 80, 120, 250, 350],
+                            borderColor: '#0ea5e9', // Sky 500
+                            backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+
+                // 2. Performance Chart (Case 2)
+                const ctxPerf = document.getElementById('perfChart').getContext('2d');
+                this.charts.perf = new Chart(ctxPerf, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Ingest Time', 'Processing Time', 'Total Latency'],
+                        datasets: [{
+                            label: 'Legacy (Full Scan)',
+                            data: [45, 120, 165], // Minutes
+                            backgroundColor: '#94a3b8' // Gray 400
+                        }, {
+                            label: 'Target (CDC)',
+                            data: [0, 0, 0], // Hidden initially
+                            backgroundColor: '#10b981' // Emerald 500
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                title: { display: true, text: 'Minuten' }
+                            }
+                        }
+                    }
+                });
+            },
+
+            // CASE 2 LOGIC
+            updatePerformance: function() {
+                const strategy = document.querySelector('input[name="strategy"]:checked').value;
+                const chart = this.charts.perf;
+                const insight = document.getElementById('perf-insight');
+
+                if (strategy === 'legacy') {
+                    // Show bad performance
+                    chart.data.datasets[0].data = [45, 120, 165]; // Legacy
+                    chart.data.datasets[1].data = [0, 0, 0]; // Target hidden
+                    insight.textContent = "Huidige status: Full scans zorgen voor lange verwerkingstijden naarmate volumes groeien.";
+                    insight.className = "mt-4 p-3 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium";
+                } else {
+                    // Show optimized performance (CDC)
+                    chart.data.datasets[0].data = [45, 120, 165]; // Keep context
+                    chart.data.datasets[1].data = [5, 15, 20]; // Target Optimized
+                    insight.textContent = "Resultaat: CDC verwerkt enkel delta's. Processing tijd daalt met 87%.";
+                    insight.className = "mt-4 p-3 bg-emerald-50 text-emerald-700 rounded-lg text-sm font-medium";
+                }
+                chart.update();
+            },
+
+            // DESIGN REVIEW SIMULATION LOGIC
+            showDetail: function(stepId) {
+                const step = this.data.pipelineSteps.find(s => s.id === stepId);
+                const titleEl = document.getElementById('detail-title');
+                const descEl = document.getElementById('detail-desc');
+                const listEl = document.getElementById('check-list');
+                const checksContainer = document.getElementById('detail-checks');
+
+                // UI Update
+                titleEl.textContent = `${step.id}. ${step.title} (${step.layer})`;
+                descEl.textContent = step.desc;
+                
+                // Clear and populate checks
+                listEl.innerHTML = '';
+                step.checks.forEach(check => {
+                    const li = document.createElement('li');
+                    li.className = "flex items-center text-sm text-gray-700 bg-white p-2 rounded border border-gray-100 shadow-sm";
+                    // Add checkmark icon
+                    li.innerHTML = `<span class="mr-2 text-green-500">✓</span> ${check}`;
+                    listEl.appendChild(li);
+                });
+                checksContainer.classList.remove('hidden');
+
+                // Highlight active step manually if clicked (outside simulation)
+                if (!this.state.isSimulating) {
+                    document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active', 'border-sky-500'));
+                    document.getElementById(`step-${stepId}`).classList.add('active', 'border-sky-500');
+                }
+            },
+
+            runSimulation: async function() {
+                if (this.state.isSimulating) return;
+                this.state.isSimulating = true;
+                
+                const statusBox = document.getElementById('sim-status');
+                const statusText = document.getElementById('sim-status-text');
+                const obsBar = document.getElementById('obs-bar');
+                const progressLine = document.getElementById('progress-line');
+                const btn = document.getElementById('sim-btn');
+
+                // Reset UI
+                statusBox.classList.remove('hidden');
+                btn.classList.add('opacity-50', 'cursor-not-allowed');
+                document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('active', 'success'));
+                obsBar.style.width = '0%';
+                progressLine.style.width = '0%';
+
+                const delay = ms => new Promise(res => setTimeout(res, ms));
+
+                try {
+                    // Loop through steps
+                    for (let i = 1; i <= 5; i++) {
+                        // 1. Activate Step
+                        const stepEl = document.getElementById(`step-${i}`);
+                        stepEl.classList.add('active');
+                        this.showDetail(i);
+                        
+                        // Update Text & Observability
+                        statusText.textContent = `Verwerken: ${this.data.pipelineSteps[i-1].title}...`;
+                        obsBar.style.width = `${(i/5)*100}%`;
+                        
+                        // Animate Progress Line between steps
+                        if (i > 1) {
+                            progressLine.style.width = `${((i-1)/4)*100}%`;
+                        }
+
+                        // Artificial Wait for "Processing"
+                        await delay(1200);
+
+                        // 2. Mark Success
+                        stepEl.classList.remove('active');
+                        stepEl.classList.add('success');
+                        
+                        // Add checkmark visually to the step circle
+                        const circle = stepEl.querySelector('.rounded-full');
+                        circle.innerHTML = '✓';
+                        circle.classList.remove('bg-gray-100', 'text-gray-500');
+                        circle.classList.add('bg-emerald-100', 'text-emerald-600');
+                    }
+                    
+                    progressLine.style.width = '100%';
+                    statusText.textContent = "Design Review Validatie Succesvol: Data is Gold & Gepubliceerd.";
+                    statusBox.classList.remove('bg-gray-50', 'border-gray-200');
+                    statusBox.classList.add('bg-emerald-50', 'border-emerald-200');
+                    statusBox.querySelector('.animate-spin').classList.remove('animate-spin', 'border-sky-600');
+                    statusBox.querySelector('div').classList.add('text-emerald-500'); // Checkmark placeholder
+                    
+                } catch (e) {
+                    console.error(e);
+                } finally {
+                    this.state.isSimulating = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    
+                    // Reset circles after 5 seconds
+                    setTimeout(() => {
+                        document.querySelectorAll('.pipeline-step .rounded-full').forEach((el, index) => {
+                            el.innerHTML = index + 1;
+                            el.classList.remove('bg-emerald-100', 'text-emerald-600');
+                            el.classList.add('bg-gray-100', 'text-gray-500');
+                        });
+                        document.querySelectorAll('.pipeline-step').forEach(el => el.classList.remove('success'));
+                        progressLine.style.width = '0%';
+                        statusBox.classList.add('hidden');
+                         // Reset Status box style
+                        statusBox.classList.add('bg-gray-50', 'border-gray-200');
+                        statusBox.classList.remove('bg-emerald-50', 'border-emerald-200');
+                        const spinner = statusBox.querySelector('div');
+                        spinner.classList.add('animate-spin', 'border-b-2', 'border-sky-600');
+                        
+                    }, 8000);
+                }
+            }
+        };
+
+        // Start App
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+
+    </script>
+</body>
+</html>
